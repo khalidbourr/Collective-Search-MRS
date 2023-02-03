@@ -1,0 +1,48 @@
+package xklaim
+
+
+import java.util.HashMap
+import java.util.TreeMap
+import java.util.Map
+
+proc ComputeClosest(Locality robot) {
+    // Total number of flags to discover
+	val TOTAL_FLAGS = 4
+    // Map to store the distance and flag information
+    var Map<Double, String> distanceAndFlag = new HashMap<Double, String>();
+    // Share the total number of flags to be discovered
+    out("Total_flag", TOTAL_FLAGS)@robot
+    
+	while(true){
+	    // Read the robot's position
+	    read("position", var Double positionx, var Double positiony, var Double theta)@robot;
+	    // Read all signals coming from flags
+	    for (var Integer i = 1; i <= TOTAL_FLAGS; i++) {
+	        // Read the flag's position
+	        read("flag_" + i.toString(), val String flagId, val Double x_flag, val Double y_flag)@self;
+	        // Compute the distance between the robot and all flags
+	        var delta = Math.pow((x_flag - positionx), 2) + Math.pow((y_flag - positiony), 2);
+	        var norm = Math.sqrt(delta);
+	        // Store the distance in the map
+	        distanceAndFlag.put(norm, flagId);
+	        
+	    }
+	        // Choose the shortest distance
+	        var sorted = new TreeMap<Double, String>(distanceAndFlag);
+	        var entry = sorted.firstEntry();
+	        var distance = entry.getKey();
+	        var flag = entry.getValue();
+	        // Send the short distance and the flag correspondence
+	        out("distance_and_flag", flag, distance)@robot;
+	        distanceAndFlag.clear();   
+	 }
+}
+ 	
+
+	
+	
+	
+	
+	
+	
+	

@@ -1,0 +1,26 @@
+package xklaim
+
+
+
+import java.util.List
+import java.util.HashSet
+import java.util.Set
+/*  Separated process for listening from all the robots, it could be useful. */
+proc Listen(List<Locality> robots, Integer TOTAL_FLAGS, Set<String> discoveredFlags) {
+
+  while(discoveredFlags.size() != TOTAL_FLAGS){	    
+	
+     for (Locality robot : robots) {
+         read("flag_discovered", var String flagDiscovered)@robot
+         if (flagDiscovered != "noFlag") {
+             discoveredFlags.add(flagDiscovered)
+         }
+     }  
+     
+	}
+    // activate the process Stop to all robots
+    out("stop", true)@self 
+    // stop the script
+    stop() 		
+	
+	}

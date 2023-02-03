@@ -1,0 +1,29 @@
+<launch>
+  <arg name="namespace" default=""/>
+  <arg name="robot_type" default="mobile_robot"/>
+  <arg name="model_name" default="simple"/>
+  <arg name="file_type" default="sdf"/>
+  <arg name="with_arm" default="false"/>
+  <arg name="use_camera" default="false"/>
+  <arg name="model_file" default="$(find multi_robot)/models/$(arg robot_type)/$(arg model_name)/model.$(arg file_type)"/>
+  <arg name="x_pos" default="0.0"/>
+  <arg name="y_pos" default="0.0"/>
+  <arg name="z_pos" default="0.0"/>
+  <arg name="yaw" default="0.0"/>
+  <arg name="use_ekf" default="false"/>
+
+  <group ns="$(arg namespace)">
+    <param name="tf_prefix" value="$(arg namespace)"/>
+    <node name="gazebo_robot" pkg="gazebo_ros" type="spawn_model" output="screen"
+      args="-file $(arg model_file) -$(arg file_type) -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -Y $(arg yaw) -model $(arg namespace) -robot_namespace $(arg namespace)">
+      <remap if="$(arg use_ekf)" from="odom" to="raw_odom"/>
+    </node>
+    <include file="$(find multi_robot)/launch/robot_state_publisher.launch">
+     <arg name="model_name" value="$(arg model_name)"/>
+     <arg name="prefix" value="$(arg namespace)"/>
+    <arg name="robot_type" value="$(arg robot_type)"/>
+    </include>
+    
+     		
+  </group>
+</launch>

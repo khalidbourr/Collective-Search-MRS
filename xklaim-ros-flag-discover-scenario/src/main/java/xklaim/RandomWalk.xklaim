@@ -1,0 +1,90 @@
+package xklaim
+
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
+import java.util.concurrent.ThreadLocalRandom
+import messages.Odometry
+import messages.Range
+import messages.Twist
+import ros.Publisher
+import ros.RosBridge
+import ros.SubscriptionRequestMsg
+import java.util.List
+import messages.Time
+import messages.XklaimToRosConnection
+
+proc RandomWalk(String rosbridgeWebsocketURI, String robotId, List<Locality> robots) {
+    val odomTopic = String.format("/%s/odom", robotId)
+	val sonarTopic = String.format("/%s/sensor/sonar_front", robotId)
+	val cmdVelTopic = String.format("/%s/cmd_vel", robotId)
+  	val OdomType = "nav_msgs/Odometry"
+    val SonarType = "sensor_msgs/Range"
+    val CmdVelType = "geometry_msgs/Twist"
+    val MIN_RANGE = 5.0
+    val MAX_SPEED = 2.0
+    val MIN_ANGLE = 0.01
+	val local=self
+	// connect to the ROS bridge
+	val bridge = new XklaimToRosConnection(rosbridgeWebsocketURI)
+	out("bridge", bridge)@self
+	// to initialize
+    out("position", 0.0, 0.0, 0.0)@self	
+    
+	bridge.subscribe(
+		SubscriptionRequestMsg.generate(odomTopic).setType(
+			OdomType).setThrottleRate(1).setQueueLength(1),
+		[ data, stringRep |
+			// extract the robot's position from the odometry sensor
+			var mapper = new ObjectMapper();
+			var JsonNode rosMsgNode = data.get("msg");
+			var Odometry odom = mapper.treeToValue(rosMsgNode, Odometry);
+			var double positionx = odom.pose.pose.position.x;
+     	    var double positiony = odom.pose.pose.position.y;
+       		var double theta = Math.atan2(positiony, positionx);
+       		// Withdraw tuple to insert one with new data
+       		in("position", val Double anyX, val Double anyY, val Double anyT)@local
+  		    out("position", positionx, positiony, theta)@local
+			])
+
+
+
+ 	bridge.subscribe(
+		SubscriptionRequestMsg.generate(sonarTopic).setType(
+			SonarType).setThrottleRate(1).setQueueLength(1),
+		[ data, stringRep |
+			// take data from the robot's ultrasonic sensors.
+			var mapper = new ObjectMapper();
+			var JsonNode rosMsgNode = data.get("msg");
+			var Range laser_data = mapper.treeToValue(rosMsgNode, Range)
+			var range = laser_data.range
+			var double speed
+			var double angle
+        	// initialize the publisher	
+			val pubvel = new Publisher(cmdVelTopic, CmdVelType , bridge)
+		    val twist=new Twist()
+		    // The angular velocity for a random walk requires random variables that range from -1 to 1.
+		    var double random = ThreadLocalRandom.current().nextDouble(-1.0, 1.0)
+		    // random walk in case of obstacles
+			if(range<MIN_RANGE){	
+		     	speed = MAX_SPEED - (MIN_RANGE-range) / MIN_RANGE
+             	angle = (1/range) * (MIN_RANGE-range) + MIN_ANGLE;
+       		 }
+        	// random walk in free obstacle space
+        	if(range>=MIN_RANGE){	
+		     	speed = MAX_SPEED - (MIN_RANGE-range) / MIN_RANGE
+             	angle = random             
+       		 }  		 
+       		// commands the wheels
+      		twist.linear.x = speed
+      		twist.angular.z = angle 
+      		pubvel.publish(twist)
+	 		
+		]
+	)
+	
+		
+	
+	
+	
+	
+}
