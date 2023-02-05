@@ -20,7 +20,7 @@ $ sudo cp -r walls_evry ~/.gazebo/models
 4. Change directory to: `cd Collective_Search_ws/Flag_ws`
 5. Build the workspace: `catkin_make`
 
-# run scenario
+# Run scenario
 
 ## terminal 1: 
 
