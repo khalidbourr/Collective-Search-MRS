@@ -3,6 +3,8 @@
 
 In this scenario, four robots collaborate to locate every flag in the area without prior knowledge of their positions. The robots move randomly, avoid obstacles, and get information on their proximity to the flags. Once the distance falls below a certain threshold, it indicates that the flags have been discovered, and all other robots are notified. When every flag has been located, all robots halt.
 
+![Alt text](/default_gzclient_camera(1)-2023-01-17T11_19_12.219697.jpg "Collective search")
+
 # Install
 
 
