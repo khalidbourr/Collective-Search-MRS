@@ -26,13 +26,14 @@ $ sudo cp -r walls_evry ~/.gazebo/models
 
 ```
 $ cd Collective_Search_ws/Flag_ws
-$ source devel/setup.bash
-$ roslaunch rosbridge_server rosbridge_websocket.launch 
+$ ./bridge.sh
+
 ```
+Or simply run: `bridge.sh` a file exists inside Flag_ws folder 
 ## terminal 2
 
 ```
 $ cd Collective_Search_ws/Flag_ws
-$ source devel/setup.bash
-$ roslaunch multi_robot multi_robot.launch 
+$ ./start.sh
 ```
+
