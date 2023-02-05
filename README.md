@@ -1,8 +1,5 @@
-# Collective_Search_MRS
-ROS and X-klaim for programming robot collective search
-
-# Scenario 
-
+# Collective Search MRS
+ Using ROS and X-klaim for programming robot collective search.
 
 In this scenario, four robots are tasked with locating every flag in the area without prior knowledge of their positions. The robots move randomly, avoid obstacles, and get information on their proximity to the flags. Once the distance falls below a certain threshold, it indicates that the flags have been discovered, and all other robots are notified. When every flag has been located, all robots halt.
 
