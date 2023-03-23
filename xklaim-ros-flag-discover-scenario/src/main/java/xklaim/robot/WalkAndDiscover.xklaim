@@ -1,0 +1,23 @@
+package xklaim.robot
+
+
+
+import java.util.List
+import java.util.Set
+import xklaim.robot.RandomWalk
+import java.util.HashSet
+
+// The WalkAndDiscover process defines the steps for each robot to walk around, discover flags, and listen to other robots.
+proc WalkAndDiscover(String robotId, List<Locality> robots) {
+    // Initialize an empty HashSet for storing the discovered flags.
+	val Set<String> discoveredFlags = new HashSet<String>()
+	
+    	// Execute the Discover process to discover flags and update the discoveredFlags set.
+	    eval(new Discover(robotId, robots, discoveredFlags))@self
+	    // Execute the Listen process for the robot to listen to its neighbors and update its discoveredFlags set.
+	    eval(new Listen(robotId, robots, discoveredFlags))@self
+	    // Execute the RandomWalk process for the robot to move around the environment.
+	    eval(new RandomWalk(robotId, robots))@self
+	    // Execute the ListenForStop process for the robot to listen for a stop signal from its neighbors.
+	    eval(new ListenForStop(robotId, robots))@self
+}

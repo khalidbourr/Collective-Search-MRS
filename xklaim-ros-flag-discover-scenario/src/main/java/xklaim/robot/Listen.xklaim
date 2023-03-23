@@ -1,0 +1,22 @@
+package xklaim.robot
+
+
+
+import java.util.List
+import java.util.Set
+import static xklaim.robot.RobotConstants.*
+
+proc Listen(String robotId, List<Locality> robots, Set<String> discoveredFlags) {
+    while (true) {
+        for (Locality robot : robots) {
+            // read the "flag_discovered" variable from all the robots
+            read(FLAG_DISCOVERED, var String flag)@robot
+            
+            // if the flag is not in the discovered flags set, add it
+            if (!discoveredFlags.contains(flag) && !flag.equals("noFlag")) {
+                discoveredFlags.add(flag)
+                print(robotId + " has been informed that " + flag + " flag has been discovered\n")
+            }
+        }
+    }
+}

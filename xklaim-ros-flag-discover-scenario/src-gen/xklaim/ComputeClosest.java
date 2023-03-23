@@ -20,13 +20,12 @@ public class ComputeClosest extends KlavaProcess {
   public void executeProcess() {
     final int TOTAL_FLAGS = 4;
     Map<Double, String> distanceAndFlag = new HashMap<Double, String>();
-    out(new Tuple(new Object[] {"Total_flag", TOTAL_FLAGS}), this.robot);
     while (true) {
       {
         Double positionx = null;
         Double positiony = null;
         Double theta = null;
-        Tuple _Tuple = new Tuple(new Object[] {"position", Double.class, Double.class, Double.class});
+        Tuple _Tuple = new Tuple(new Object[] {GlobalConstants.POSITION, Double.class, Double.class, Double.class});
         read(_Tuple, this.robot);
         positionx = (Double) _Tuple.getItem(1);
         positiony = (Double) _Tuple.getItem(2);
@@ -36,13 +35,13 @@ public class ComputeClosest extends KlavaProcess {
             final String flagId;
             final Double x_flag;
             final Double y_flag;
-            Tuple _Tuple_1 = new Tuple(new Object[] {("flag_" + i.toString()), String.class, Double.class, Double.class});
+            Tuple _Tuple_1 = new Tuple(new Object[] {GlobalConstants.FLAG, ("flag_" + i.toString()), String.class, Double.class, Double.class});
             String _string = i.toString();
             String _plus = ("flag_" + _string);
             read(_Tuple_1, this.self);
-            flagId = (String) _Tuple_1.getItem(1);
-            x_flag = (Double) _Tuple_1.getItem(2);
-            y_flag = (Double) _Tuple_1.getItem(3);
+            flagId = (String) _Tuple_1.getItem(2);
+            x_flag = (Double) _Tuple_1.getItem(3);
+            y_flag = (Double) _Tuple_1.getItem(4);
             double _minus = DoubleExtensions.operator_minus(x_flag, positionx);
             double _pow = Math.pow(_minus, 2);
             double _minus_1 = DoubleExtensions.operator_minus(y_flag, positiony);
@@ -56,7 +55,7 @@ public class ComputeClosest extends KlavaProcess {
         Map.Entry<Double, String> entry = sorted.firstEntry();
         Double distance = entry.getKey();
         String flag = entry.getValue();
-        out(new Tuple(new Object[] {"distance_and_flag", flag, distance}), this.robot);
+        out(new Tuple(new Object[] {GlobalConstants.FLAG_STATUS, flag, distance}), this.robot);
         distanceAndFlag.clear();
       }
     }

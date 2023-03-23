@@ -11,6 +11,7 @@ import klava.topology.KlavaNodeCoordinator;
 import klava.topology.LogicalNet;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.mikado.imc.common.IMCException;
+import xklaim.robot.RobotBehaviour;
 
 @SuppressWarnings("all")
 public class Robot extends LogicalNet {
@@ -28,15 +29,12 @@ public class Robot extends LogicalNet {
     private static class robot1Process extends KlavaNodeCoordinator {
       @Override
       public void executeProcess() {
-        final String rosbridgeWebsocketURI = "ws://0.0.0.0:9090";
         final String robotId = "robot1";
         final List<Locality> neighbouringRobots = Collections.<Locality>unmodifiableList(CollectionLiterals.<Locality>newArrayList(Robot.robot2, Robot.robot3, Robot.robot4));
-        Discover _discover = new Discover(robotId, neighbouringRobots);
-        eval(_discover, this.self);
-        RandomWalk _randomWalk = new RandomWalk(rosbridgeWebsocketURI, robotId, neighbouringRobots);
-        eval(_randomWalk, this.self);
-        Stop _stop = new Stop(robotId, neighbouringRobots);
-        eval(_stop, this.self);
+        out(new Tuple(new Object[] {GlobalConstants.TOTAL_FLAG, 4}), this.self);
+        out(new Tuple(new Object[] {GlobalConstants.STOP, false}), this.self);
+        RobotBehaviour _robotBehaviour = new RobotBehaviour(robotId, neighbouringRobots);
+        eval(_robotBehaviour, this.self);
       }
     }
     
@@ -53,15 +51,12 @@ public class Robot extends LogicalNet {
     private static class robot2Process extends KlavaNodeCoordinator {
       @Override
       public void executeProcess() {
-        final String rosbridgeWebsocketURI = "ws://0.0.0.0:9090";
         final String robotId = "robot2";
         final List<Locality> neighbouringRobots = Collections.<Locality>unmodifiableList(CollectionLiterals.<Locality>newArrayList(Robot.robot3, Robot.robot4, Robot.robot1));
-        Discover _discover = new Discover(robotId, neighbouringRobots);
-        eval(_discover, this.self);
-        RandomWalk _randomWalk = new RandomWalk(rosbridgeWebsocketURI, robotId, neighbouringRobots);
-        eval(_randomWalk, this.self);
-        Stop _stop = new Stop(robotId, neighbouringRobots);
-        eval(_stop, this.self);
+        out(new Tuple(new Object[] {GlobalConstants.TOTAL_FLAG, 4}), this.self);
+        out(new Tuple(new Object[] {GlobalConstants.STOP, false}), this.self);
+        RobotBehaviour _robotBehaviour = new RobotBehaviour(robotId, neighbouringRobots);
+        eval(_robotBehaviour, this.self);
       }
     }
     
@@ -78,15 +73,12 @@ public class Robot extends LogicalNet {
     private static class robot3Process extends KlavaNodeCoordinator {
       @Override
       public void executeProcess() {
-        final String rosbridgeWebsocketURI = "ws://0.0.0.0:9090";
         final String robotId = "robot3";
         final List<Locality> neighbouringRobots = Collections.<Locality>unmodifiableList(CollectionLiterals.<Locality>newArrayList(Robot.robot4, Robot.robot1, Robot.robot2));
-        Discover _discover = new Discover(robotId, neighbouringRobots);
-        eval(_discover, this.self);
-        RandomWalk _randomWalk = new RandomWalk(rosbridgeWebsocketURI, robotId, neighbouringRobots);
-        eval(_randomWalk, this.self);
-        Stop _stop = new Stop(robotId, neighbouringRobots);
-        eval(_stop, this.self);
+        out(new Tuple(new Object[] {GlobalConstants.TOTAL_FLAG, 4}), this.self);
+        out(new Tuple(new Object[] {GlobalConstants.STOP, false}), this.self);
+        RobotBehaviour _robotBehaviour = new RobotBehaviour(robotId, neighbouringRobots);
+        eval(_robotBehaviour, this.self);
       }
     }
     
@@ -103,15 +95,12 @@ public class Robot extends LogicalNet {
     private static class robot4Process extends KlavaNodeCoordinator {
       @Override
       public void executeProcess() {
-        final String rosbridgeWebsocketURI = "ws://0.0.0.0:9090";
         final String robotId = "robot4";
         final List<Locality> neighbouringRobots = Collections.<Locality>unmodifiableList(CollectionLiterals.<Locality>newArrayList(Robot.robot1, Robot.robot2, Robot.robot3));
-        Discover _discover = new Discover(robotId, neighbouringRobots);
-        eval(_discover, this.self);
-        RandomWalk _randomWalk = new RandomWalk(rosbridgeWebsocketURI, robotId, neighbouringRobots);
-        eval(_randomWalk, this.self);
-        Stop _stop = new Stop(robotId, neighbouringRobots);
-        eval(_stop, this.self);
+        out(new Tuple(new Object[] {GlobalConstants.TOTAL_FLAG, 4}), this.self);
+        out(new Tuple(new Object[] {GlobalConstants.STOP, false}), this.self);
+        RobotBehaviour _robotBehaviour = new RobotBehaviour(robotId, neighbouringRobots);
+        eval(_robotBehaviour, this.self);
       }
     }
     
@@ -128,10 +117,10 @@ public class Robot extends LogicalNet {
     private static class EnvProcess extends KlavaNodeCoordinator {
       @Override
       public void executeProcess() {
-        out(new Tuple(new Object[] {"flag_1", "red", (-40.0), 20.0}), this.self);
-        out(new Tuple(new Object[] {"flag_2", "white", 40.0, (-20.0)}), this.self);
-        out(new Tuple(new Object[] {"flag_3", "green", 30.0, 0.0}), this.self);
-        out(new Tuple(new Object[] {"flag_4", "blue", 30.0, 16.0}), this.self);
+        out(new Tuple(new Object[] {GlobalConstants.FLAG, "flag_1", "red", (-40.0), 20.0}), this.self);
+        out(new Tuple(new Object[] {GlobalConstants.FLAG, "flag_2", "white", 40.0, (-20.0)}), this.self);
+        out(new Tuple(new Object[] {GlobalConstants.FLAG, "flag_3", "green", 30.0, 0.0}), this.self);
+        out(new Tuple(new Object[] {GlobalConstants.FLAG, "flag_4", "blue", 30.0, 16.0}), this.self);
         ComputeClosest _computeClosest = new ComputeClosest(Robot.robot1);
         eval(_computeClosest, this.self);
         ComputeClosest _computeClosest_1 = new ComputeClosest(Robot.robot2);

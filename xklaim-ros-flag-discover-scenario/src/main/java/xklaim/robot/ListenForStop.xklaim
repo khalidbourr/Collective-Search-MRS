@@ -1,0 +1,23 @@
+package xklaim.robot
+
+import java.util.List
+import xklaim.robot.Stop
+import static xklaim.GlobalConstants.*
+
+proc ListenForStop(String robotId, List<Locality> robots) {
+    var shouldStop = false
+    while (!shouldStop) {
+        // read the "stop" variable from all the robots
+        for (Locality robot : robots) {
+            read(STOP, var Boolean s)@robot
+            // if true, call the Stop process for the current robot and set shouldStop to true
+            if (s == true) {
+                eval(new Stop(robotId))@self
+                shouldStop = true
+                stop()
+            }
+        }
+        // Sleep for a while before checking again
+        Thread.sleep(1000)
+    }
+}

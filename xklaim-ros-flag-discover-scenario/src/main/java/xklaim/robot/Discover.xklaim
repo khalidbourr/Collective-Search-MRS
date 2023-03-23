@@ -1,0 +1,51 @@
+package xklaim.robot
+
+
+
+import java.util.List
+import java.util.Set
+import static xklaim.GlobalConstants.*
+import static xklaim.robot.RobotConstants.*
+
+
+proc Discover(String robotId, List<Locality> robots, Set<String> discoveredFlags) {
+    // read the total flags a robot has to discover
+    read(TOTAL_FLAG, val Integer TOTAL_FLAGS)@self
+    
+    // initial state of flags, "noFlag discovered"
+    out(FLAG_DISCOVERED,"noFlag")@self  
+    
+    // start the Listen process
+    eval(new Listen(robotId, robots, discoveredFlags))@self
+    
+    while (discoveredFlags.size() != TOTAL_FLAGS) {
+        // take the information from the simulator that contains the closest flag "its color" and the distance to it. 
+        in(FLAG_STATUS, var String flag, var Double distance)@self;
+        
+        // check if the robot is within the radius of the undiscovered shortest flag
+        if (distance < 8.0 && !discoveredFlags.contains(flag)) {
+            // read the robot's position
+            read(POSITION, var Double x, var Double y, var Double theta)@self
+            
+            // format the location string
+            var String location = String.format("[%.2f ± 8.0, %.2f ± 8.0]", x, y)
+            
+            // print the flag discovery message with location and robot id
+            print(flag + " flag has been discovered in the area: " + location + " by " + robotId + "\n")
+            
+            // add the flag to the discovered flags set
+            discoveredFlags.add(flag)
+            
+            // read the flag_discovered variable
+            in(FLAG_DISCOVERED, var String X)@self
+            
+            // send the flag discovered to all robots
+            out(FLAG_DISCOVERED, flag)@self
+        }
+    }
+    // set the "stop" variable to true when all flags are discovered
+    in(STOP, var Boolean s)@self
+    out(STOP, true)@self
+    // stop the script
+    stop()       
+}

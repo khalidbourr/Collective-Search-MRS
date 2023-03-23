@@ -1,67 +1,73 @@
 package xklaim
 
 import java.util.List
+import xklaim.robot.RobotBehaviour
+import static xklaim.GlobalConstants.*
+ 
 
 net Robot physical "localhost:9999" {
 
  
 	node robot1{
-		val rosbridgeWebsocketURI="ws://0.0.0.0:9090"
 		val robotId="robot1"
 		val List<Locality> neighbouringRobots = #[robot2, robot3, robot4]
 		
-		eval(new Discover(robotId, neighbouringRobots))@self
-		
-		eval(new RandomWalk(rosbridgeWebsocketURI,robotId, neighbouringRobots))@self
+	    // Initialize the total flags and stop variables
+	    out(TOTAL_FLAG, 4)@self
+	    out(STOP, false)@self
+	    
+	    //Run the Macro Activity "RobotBehaviour"
+	    eval(new RobotBehaviour(robotId, neighbouringRobots))@self
 
-		eval(new Stop(robotId, neighbouringRobots))@self
-
-}
+	    
+	}
 	node robot2{
-		val rosbridgeWebsocketURI="ws://0.0.0.0:9090"
 		val robotId="robot2"
 		val List<Locality> neighbouringRobots = #[robot3,robot4,robot1]
+    	
+	    // Initialize the total flags and stop variables
+	    out(TOTAL_FLAG, 4)@self
+	    out(STOP, false)@self
+	    
+	    //Run the Macro Activity "RobotBehaviour"
+	    eval(new RobotBehaviour(robotId, neighbouringRobots))@self
 
-		eval(new Discover(robotId, neighbouringRobots))@self
-
-		eval(new RandomWalk(rosbridgeWebsocketURI,robotId, neighbouringRobots))@self
-
-		eval(new Stop(robotId, neighbouringRobots))@self
-		
-}
+	}
 
 	node robot3{
-		val rosbridgeWebsocketURI="ws://0.0.0.0:9090"
 		val robotId="robot3"
 		val List<Locality> neighbouringRobots = #[robot4, robot1, robot2]
 		
-		eval(new Discover(robotId, neighbouringRobots))@self
-		
-		eval(new RandomWalk(rosbridgeWebsocketURI,robotId, neighbouringRobots))@self
-		
-		eval(new Stop(robotId, neighbouringRobots))@self
-		
-}
+	    // Initialize the total flags and stop variables
+	    out(TOTAL_FLAG, 4)@self
+	    out(STOP, false)@self
+	    
+	    //Run the Macro Activity "RobotBehaviour"
+	    eval(new RobotBehaviour(robotId, neighbouringRobots))@self
+
+	    
+	}
 	node robot4{
-		val rosbridgeWebsocketURI="ws://0.0.0.0:9090"
 		val robotId="robot4"
 		val List<Locality> neighbouringRobots = #[robot1, robot2, robot3]
 		
-		eval(new Discover(robotId,neighbouringRobots))@self
-		
-		eval(new RandomWalk(rosbridgeWebsocketURI,robotId, neighbouringRobots))@self
-		
-		eval(new Stop(robotId, neighbouringRobots))@self
-
-}
+	    // Initialize the total flags and stop variables
+	    out(TOTAL_FLAG, 4)@self
+	    out(STOP, false)@self
+	    
+	    //Run the Macro Activity "RobotBehaviour"
+	    eval(new RobotBehaviour(robotId, neighbouringRobots))@self
+ 
+	    
+	}
 	
 	node Env{
-		// the flag positions
-		out("flag_1","red", -40.0, 20.0)@self
-		out("flag_2","white", 40.0, -20.0)@self
-		out("flag_3","green", 30.0, 0.0)@self
-		out("flag_4","blue", 30.0, 16.0)@self		
-		// compute the closest flag for each robot
+		// Set the flag ID, their colors, and their positions
+		out(FLAG,"flag_1","red", -40.0, 20.0)@self
+		out(FLAG,"flag_2","white", 40.0, -20.0)@self
+		out(FLAG,"flag_3","green", 30.0, 0.0)@self
+		out(FLAG,"flag_4","blue", 30.0, 16.0)@self		
+		// Compute the closest flag for each robot
 		eval(new ComputeClosest(robot1))@self	
 		eval(new ComputeClosest(robot2))@self	
 		eval(new ComputeClosest(robot3))@self	

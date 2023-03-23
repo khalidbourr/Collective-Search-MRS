@@ -1,0 +1,13 @@
+package xklaim.robot
+
+
+
+import java.util.List
+
+
+ // The RobotBehaviour process defines the overall behavior for each robot in the network.
+proc RobotBehaviour(String robotId, List<Locality> neighbouringRobots) {
+		// Execute the WalkAndDiscover process.
+        eval(new WalkAndDiscover(robotId, neighbouringRobots))@self
+
+}

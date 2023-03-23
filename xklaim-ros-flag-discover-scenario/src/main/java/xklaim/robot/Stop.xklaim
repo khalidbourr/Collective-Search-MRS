@@ -1,0 +1,28 @@
+package xklaim.robot
+
+
+import messages.Twist
+import ros.Publisher
+import messages.XklaimToRosConnection
+import static xklaim.GlobalConstants.*
+import static xklaim.robot.RobotConstants.*
+
+proc Stop(String robotId) {
+    // read the bridge
+    read(BRIDGE, var XklaimToRosConnection bridge)@self
+ 
+    val pubvel = new Publisher("/"+robotId+"/cmd_vel","geometry_msgs/Twist", bridge)
+    val twist = new Twist()
+    // set linear velocity to 0
+    twist.linear.x = 0.0
+    // set angular velocity to 0
+    twist.angular.z = 0.0 
+    // publish the command to stop
+    pubvel.publish(twist)
+    print("All flags have been discovered by the network \n")
+    // unsubscribe from odometry and sonar sensor topics
+    bridge.unsubscribe("/"+robotId+"/odom")    
+    bridge.unsubscribe("/"+robotId+"/sensor/sonar_front")
+    // stop the execution
+    stop()         
+}

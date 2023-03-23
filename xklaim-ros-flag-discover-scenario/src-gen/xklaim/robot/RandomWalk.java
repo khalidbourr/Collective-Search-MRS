@@ -1,4 +1,4 @@
-package xklaim;
+package xklaim.robot;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,36 +16,25 @@ import org.eclipse.xtext.xbase.lib.Exceptions;
 import ros.Publisher;
 import ros.RosListenDelegate;
 import ros.SubscriptionRequestMsg;
+import xklaim.GlobalConstants;
 
 @SuppressWarnings("all")
 public class RandomWalk extends KlavaProcess {
-  private String rosbridgeWebsocketURI;
-  
   private String robotId;
   
   private List<Locality> robots;
   
-  public RandomWalk(final String rosbridgeWebsocketURI, final String robotId, final List<Locality> robots) {
-    this.rosbridgeWebsocketURI = rosbridgeWebsocketURI;
+  public RandomWalk(final String robotId, final List<Locality> robots) {
     this.robotId = robotId;
     this.robots = robots;
   }
   
   @Override
   public void executeProcess() {
-    final String odomTopic = String.format("/%s/odom", this.robotId);
-    final String sonarTopic = String.format("/%s/sensor/sonar_front", this.robotId);
-    final String cmdVelTopic = String.format("/%s/cmd_vel", this.robotId);
-    final String OdomType = "nav_msgs/Odometry";
-    final String SonarType = "sensor_msgs/Range";
-    final String CmdVelType = "geometry_msgs/Twist";
-    final double MIN_RANGE = 5.0;
-    final double MAX_SPEED = 2.0;
-    final double MIN_ANGLE = 0.01;
     final Locality local = this.self;
-    final XklaimToRosConnection bridge = new XklaimToRosConnection(this.rosbridgeWebsocketURI);
-    out(new Tuple(new Object[] {"bridge", bridge}), this.self);
-    out(new Tuple(new Object[] {"position", 0.0, 0.0, 0.0}), this.self);
+    final XklaimToRosConnection bridge = new XklaimToRosConnection(RobotConstants.ROS_BRIDGE_SOCKET_URI);
+    out(new Tuple(new Object[] {RobotConstants.BRIDGE, bridge}), this.self);
+    out(new Tuple(new Object[] {GlobalConstants.POSITION, 0.0, 0.0, 0.0}), this.self);
     final RosListenDelegate _function = (JsonNode data, String stringRep) -> {
       try {
         ObjectMapper mapper = new ObjectMapper();
@@ -57,18 +46,19 @@ public class RandomWalk extends KlavaProcess {
         final Double anyX;
         final Double anyY;
         final Double anyT;
-        Tuple _Tuple = new Tuple(new Object[] {"position", Double.class, Double.class, Double.class});
+        Tuple _Tuple = new Tuple(new Object[] {GlobalConstants.POSITION, Double.class, Double.class, Double.class});
         in(_Tuple, local);
         anyX = (Double) _Tuple.getItem(1);
         anyY = (Double) _Tuple.getItem(2);
         anyT = (Double) _Tuple.getItem(3);
-        out(new Tuple(new Object[] {"position", positionx, positiony, theta}), local);
+        out(new Tuple(new Object[] {GlobalConstants.POSITION, positionx, positiony, theta}), local);
       } catch (Throwable _e) {
         throw Exceptions.sneakyThrow(_e);
       }
     };
     bridge.subscribe(
-      SubscriptionRequestMsg.generate(odomTopic).setType(OdomType).setThrottleRate(Integer.valueOf(1)).setQueueLength(Integer.valueOf(1)), _function);
+      SubscriptionRequestMsg.generate((("/" + this.robotId) + "/odom")).setType(
+        RobotConstants.ODOMETRYMESSAGE).setThrottleRate(Integer.valueOf(1)).setQueueLength(Integer.valueOf(1)), _function);
     final RosListenDelegate _function_1 = (JsonNode data, String stringRep) -> {
       try {
         ObjectMapper mapper = new ObjectMapper();
@@ -77,15 +67,15 @@ public class RandomWalk extends KlavaProcess {
         double range = laser_data.range;
         double speed = 0;
         double angle = 0;
-        final Publisher pubvel = new Publisher(cmdVelTopic, CmdVelType, bridge);
+        final Publisher pubvel = new Publisher((("/" + this.robotId) + "/cmd_vel"), RobotConstants.CMDVELMESSAGE, bridge);
         final Twist twist = new Twist();
         double random = ThreadLocalRandom.current().nextDouble((-1.0), 1.0);
-        if ((range < MIN_RANGE)) {
-          speed = (MAX_SPEED - ((MIN_RANGE - range) / MIN_RANGE));
-          angle = (((1 / range) * (MIN_RANGE - range)) + MIN_ANGLE);
+        if ((range < RobotConstants.MIN_RANGE)) {
+          speed = (RobotConstants.MAX_SPEED - ((RobotConstants.MIN_RANGE - range) / RobotConstants.MIN_RANGE));
+          angle = (((1 / range) * (RobotConstants.MIN_RANGE - range)) + RobotConstants.MIN_ANGLE);
         }
-        if ((range >= MIN_RANGE)) {
-          speed = (MAX_SPEED - ((MIN_RANGE - range) / MIN_RANGE));
+        if ((range >= RobotConstants.MIN_RANGE)) {
+          speed = (RobotConstants.MAX_SPEED - ((RobotConstants.MIN_RANGE - range) / RobotConstants.MIN_RANGE));
           angle = random;
         }
         Vector3 _linear = twist.getLinear();
@@ -98,6 +88,7 @@ public class RandomWalk extends KlavaProcess {
       }
     };
     bridge.subscribe(
-      SubscriptionRequestMsg.generate(sonarTopic).setType(SonarType).setThrottleRate(Integer.valueOf(1)).setQueueLength(Integer.valueOf(1)), _function_1);
+      SubscriptionRequestMsg.generate((("/" + this.robotId) + "/sensor/sonar_front")).setType(
+        RobotConstants.SONARMESSAGE).setThrottleRate(Integer.valueOf(1)).setQueueLength(Integer.valueOf(1)), _function_1);
   }
 }
